@@ -2,7 +2,7 @@ services:
   - type: web
     name: volleyball-analysis
     env: python
-    buildCommand: "./build.sh"
+    buildCommand: "bash build.sh"
     startCommand: "gunicorn volleyball_system.wsgi:application"
     envVars:
       - key: PYTHON_VERSION
