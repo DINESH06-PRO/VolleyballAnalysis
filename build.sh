@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# exit on error
+set -o errexit
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Convert static files
+python manage.py collectstatic --no-input
+
+# Apply any outstanding database migrations
+python manage.py migrate
+
+# Seed data if it's the first run (Optional, uncomment if needed)
+# python -X utf8 seed_data.py
+# python seed_training.py

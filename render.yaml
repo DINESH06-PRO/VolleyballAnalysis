@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: volleyball-analysis
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn volleyball_system.wsgi:application"
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.13.7
+      - key: DJANGO_SETTINGS_MODULE
+        value: volleyball_system.settings
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: ".render.com"
