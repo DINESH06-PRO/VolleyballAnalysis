@@ -9,7 +9,15 @@ DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
 ALLOWED_HOSTS = ['*']
 if not DEBUG:
-    ALLOWED_HOSTS = [os.environ.get('ALLOWED_HOSTS', '.render.com')]
+    # Changed .render.com to .onrender.com
+    RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+    if RENDER_EXTERNAL_HOSTNAME:
+        ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    else:
+        ALLOWED_HOSTS = [os.environ.get('ALLOWED_HOSTS', '.onrender.com')]
+
+# Add CSRF trusted origins for Render
+CSRF_TRUSTED_ORIGINS = ['https://*.onrender.com']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
