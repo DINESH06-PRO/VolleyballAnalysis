@@ -11,6 +11,5 @@ python manage.py collectstatic --no-input
 # Apply any outstanding database migrations
 python manage.py migrate
 
-# Seed data for demo purposes
-python -X utf8 seed_data.py
-python seed_training.py
+# Seed data once
+python -X utf8 deploy_seed.py
