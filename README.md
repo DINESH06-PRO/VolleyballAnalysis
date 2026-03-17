@@ -37,8 +37,25 @@ python seed_training.py
 python manage.py runserver 8080
 ```
 Access the application at: [http://127.0.0.1:8080/](http://127.0.0.1:8080/)
-*   **Username**: `admin`
-*   **Password**: `admin123`
+
+---
+
+## 🌐 Deploy to Render (No Credit Card Required)
+
+Render asks for a card for "Blueprints", but you can bypass this by creating a **Web Service** manually:
+
+1.  **New +** > **Web Service**.
+2.  Connect your GitHub repo.
+3.  **Settings**:
+    *   **Name**: `volleyball-analysis`
+    *   **Runtime**: `Python 3`
+    *   **Build Command**: `bash build.sh`
+    *   **Start Command**: `gunicorn volleyball_system.wsgi:application`
+4.  **Environment Variables** (Add these):
+    *   `SECRET_KEY`: (Any random string)
+    *   `DEBUG`: `False`
+    *   `ALLOWED_HOSTS`: `.render.com`
+5.  Click **Deploy Web Service**.
 
 ## 📊 Scoring Methodology
 
