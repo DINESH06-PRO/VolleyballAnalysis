@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard — Volleyball Analysis{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+{% block breadcrumb %}Overview{% endblock %}
+
+{% block content %}
+<!-- Stat Cards -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-xl-2 fade-in-up">
+    <div class="stat-card primary">
+      <div class="stat-icon"><i class="bi bi-people-fill"></i></div>
+      <div class="stat-value">{{ total_players }}</div>
+      <div class="stat-label">Total Players</div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-2 fade-in-up delay-1">
+    <div class="stat-card info">
+      <div class="stat-icon"><i class="bi bi-trophy-fill"></i></div>
+      <div class="stat-value">{{ total_matches }}</div>
+      <div class="stat-label">Matches Played</div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-2 fade-in-up delay-2">
+    <div class="stat-card success">
+      <div class="stat-icon"><i class="bi bi-award-fill"></i></div>
+      <div class="stat-value">{{ total_wins }}</div>
+      <div class="stat-label">Wins</div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-2 fade-in-up delay-3">
+    <div class="stat-card danger">
+      <div class="stat-icon"><i class="bi bi-x-circle-fill"></i></div>
+      <div class="stat-value">{{ total_losses }}</div>
+      <div class="stat-label">Losses</div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-2 fade-in-up">
+    <div class="stat-card warning">
+      <div class="stat-icon"><i class="bi bi-percent"></i></div>
+      <div class="stat-value">{{ win_rate }}%</div>
+      <div class="stat-label">Win Rate</div>
+    </div>
+  </div>
+  <div class="col-6 col-xl-2 fade-in-up delay-1">
+    <div class="stat-card danger">
+      <div class="stat-icon"><i class="bi bi-heart-pulse-fill"></i></div>
+      <div class="stat-value">{{ active_injuries }}</div>
+      <div class="stat-label">Active Injuries</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <!-- Attack Success Chart -->
+  <div class="col-lg-8">
+    <div class="glass-card h-100">
+      <div class="card-header-custom">
+        <h6><i class="bi bi-bar-chart-fill me-2" style="color:var(--primary)"></i>Player Performance Overview</h6>
+      </div>
+      <div class="card-body-custom">
+        <div class="chart-wrap" style="height:300px">
+          <canvas id="playerChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Win/Loss Doughnut -->
+  <div class="col-lg-4">
+    <div class="glass-card h-100">
+      <div class="card-header-custom">
+        <h6><i class="bi bi-pie-chart-fill me-2" style="color:var(--secondary)"></i>Win / Loss Ratio</h6>
+      </div>
+      <div class="card-body-custom d-flex align-items-center justify-content-center" style="flex-direction:column;gap:1rem;">
+        <div class="chart-wrap" style="height:220px;width:220px;">
+          <canvas id="winLossChart"></canvas>
+        </div>
+        <div class="d-flex gap-3">
+          <span style="font-size:0.8rem"><span style="color:var(--success)">●</span> Wins: {{ total_wins }}</span>
+          <span style="font-size:0.8rem"><span style="color:var(--danger)">●</span> Losses: {{ total_losses }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4 mb-4">
+  <!-- Player Rankings -->
+  <div class="col-lg-5">
+    <div class="glass-card h-100">
+      <div class="card-header-custom">
+        <h6><i class="bi bi-star-fill me-2" style="color:var(--secondary)"></i>Top Performers</h6>
+        <a href="{% url 'performance_analysis' %}" class="btn-outline-custom" style="font-size:0.75rem;padding:0.35rem 0.75rem;">View All</a>
+      </div>
+      <div class="card-body-custom" style="padding:0.5rem 0">
+        {% for p in top_players %}
+        <div style="display:flex;align-items:center;gap:1rem;padding:0.75rem 1.5rem;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background=''">
+          <div class="rank-num rank-{% if forloop.counter <= 3 %}{{ forloop.counter }}{% else %}other{% endif %}">{{ forloop.counter }}</div>
+          <div class="player-avatar" style="width:36px;height:36px;font-size:0.8rem;">{{ p.name|first|upper }}</div>
+          <div style="flex:1">
+            <div style="font-size:0.85rem;font-weight:600">{{ p.name }}</div>
+            <div style="font-size:0.72rem;color:var(--text-muted)">{{ p.get_position_display }}</div>
+          </div>
+          <div style="font-size:0.9rem;font-weight:700;color:var(--primary)">{{ p.get_avg_performance_score }}</div>
+        </div>
+        {% empty %}
+        <div style="text-align:center;padding:2rem;color:var(--text-muted);font-size:0.85rem;">
+          <i class="bi bi-people" style="font-size:2rem;display:block;margin-bottom:0.5rem;"></i>
+          No player data yet. <a href="{% url 'player_create' %}" style="color:var(--primary)">Add players</a>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+  <!-- Recent Matches -->
+  <div class="col-lg-7">
+    <div class="glass-card h-100">
+      <div class="card-header-custom">
+        <h6><i class="bi bi-calendar3 me-2" style="color:var(--info)"></i>Recent Matches</h6>
+        <a href="{% url 'match_create' %}" class="btn-primary-custom" style="font-size:0.75rem;padding:0.35rem 0.85rem;">
+          <i class="bi bi-plus"></i> Add Match
+        </a>
+      </div>
+      <div class="card-body-custom" style="padding:0">
+        <table class="custom-table">
+          <thead>
+            <tr><th>Opponent</th><th>Date</th><th>Type</th><th>Result</th></tr>
+          </thead>
+          <tbody>
+            {% for m in recent_matches %}
+            <tr>
+              <td><a href="{% url 'match_detail' m.pk %}" style="color:var(--text-primary);text-decoration:none;font-weight:600;">{{ m.opponent_name }}</a></td>
+              <td style="color:var(--text-muted);font-size:0.8rem;">{{ m.match_date }}</td>
+              <td><span class="badge-position badge-{{ m.match_type }}">{{ m.get_match_type_display }}</span></td>
+              <td><span class="badge-position badge-{{ m.result }}">{{ m.get_result_display }}</span></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:2rem;">No matches recorded yet.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Active Injuries Banner -->
+{% if active_injury_list %}
+<div class="glass-card mb-4">
+  <div class="card-header-custom">
+    <h6><i class="bi bi-heart-pulse-fill me-2" style="color:var(--danger)"></i>Active Injuries Alert</h6>
+    <a href="{% url 'injury_list' %}" class="btn-outline-custom" style="font-size:0.75rem;padding:0.35rem 0.75rem;">Manage</a>
+  </div>
+  <div class="card-body-custom" style="padding:1rem 1.5rem;display:flex;gap:1rem;flex-wrap:wrap;">
+    {% for inj in active_injury_list %}
+    <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:0.6rem 1rem;font-size:0.8rem;">
+      <span style="color:var(--danger);font-weight:600">{{ inj.player.name }}</span>
+      <span style="color:var(--text-muted)"> — {{ inj.injury_type }}</span>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const chartData = {{ player_chart_data|safe }};
+const labels = chartData.map(d => d.name);
+const attackData = chartData.map(d => d.attack);
+const serveData = chartData.map(d => d.serve);
+const blockData = chartData.map(d => d.block);
+
+// Player Performance Chart
+new Chart(document.getElementById('playerChart'), {
+  type: 'bar',
+  data: {
+    labels: labels.length ? labels : ['No Data'],
+    datasets: [
+      { label: 'Attack Rate %', data: attackData.length ? attackData : [0], backgroundColor: 'rgba(108,99,255,0.7)', borderRadius: 6 },
+      { label: 'Serve Accuracy %', data: serveData.length ? serveData : [0], backgroundColor: 'rgba(245,158,11,0.7)', borderRadius: 6 },
+      { label: 'Block Efficiency %', data: blockData.length ? blockData : [0], backgroundColor: 'rgba(16,185,129,0.7)', borderRadius: 6 },
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { boxWidth: 12, padding: 15 } } },
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,0.05)' } },
+      y: { grid: { color: 'rgba(255,255,255,0.05)' }, max: 100, ticks: { callback: v => v + '%' } }
+    }
+  }
+});
+
+// Win/Loss Doughnut
+new Chart(document.getElementById('winLossChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Wins', 'Losses'],
+    datasets: [{
+      data: [{{ total_wins }}, {{ total_losses }}],
+      backgroundColor: ['rgba(16,185,129,0.8)', 'rgba(239,68,68,0.8)'],
+      borderWidth: 0,
+      hoverOffset: 4,
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    cutout: '72%',
+    plugins: { legend: { display: false } }
+  }
+});
+</script>
+{% endblock %}

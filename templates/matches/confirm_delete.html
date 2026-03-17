@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Delete Match{% endblock %}
+{% block page_title %}Delete Match{% endblock %}
+{% block breadcrumb %}<a href="{% url 'match_list' %}">Matches</a> / Delete{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-5">
+    <div class="glass-card">
+      <div class="card-body-custom" style="text-align:center;padding:2.5rem;">
+        <div style="font-size:3rem;margin-bottom:1rem;">⚠️</div>
+        <h5 style="font-weight:700;margin-bottom:0.5rem;">Delete Match?</h5>
+        <p style="color:var(--text-muted);">You are about to permanently delete the match record:</p>
+        <p style="font-weight:700;color:var(--danger);font-size:1.1rem;">vs {{ match.opponent_name }} ({{ match.match_date }})</p>
+        <p style="color:var(--text-muted);font-size:0.85rem;">All performance statistics for this match will also be deleted.</p>
+        <div style="display:flex;gap:1rem;justify-content:center;margin-top:1.5rem;">
+          <form method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn-danger-custom" style="padding:0.7rem 1.5rem;">
+              <i class="bi bi-trash"></i> Yes, Delete
+            </button>
+          </form>
+          <a href="{% url 'match_list' %}" class="btn-outline-custom" style="padding:0.7rem 1.5rem;">
+            <i class="bi bi-x"></i> Cancel
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% block title %}Player Comparison — Volleyball{% endblock %}
+{% block page_title %}Player Comparison{% endblock %}
+{% block breadcrumb %}Analytics / Player Comparison{% endblock %}
+
+{% block content %}
+<!-- Selector -->
+<div class="glass-card mb-4">
+  <div class="card-header-custom">
+    <h6><i class="bi bi-arrows-angle-expand me-2" style="color:var(--primary)"></i>Select Players to Compare</h6>
+  </div>
+  <div class="card-body-custom">
+    <form method="GET" class="row g-3 align-items-end">
+      <div class="col-md-5">
+        <label class="form-label">Player 1</label>
+        {{ form.player1 }}
+      </div>
+      <div class="col-md-2 text-center">
+        <div class="vs-divider" style="padding:0;margin-top:1.5rem;">VS</div>
+      </div>
+      <div class="col-md-5">
+        <label class="form-label">Player 2</label>
+        {{ form.player2 }}
+      </div>
+      <div class="col-12 d-flex gap-2">
+        <button type="submit" class="btn-primary-custom"><i class="bi bi-arrow-left-right"></i> Compare Players</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if player1 and player2 %}
+<!-- Comparison Header -->
+<div class="row g-3 mb-4 align-items-center">
+  <div class="col-5">
+    <div class="glass-card" style="text-align:center;padding:1.5rem;">
+      <div class="player-avatar lg mx-auto mb-2">{{ player1.name|first|upper }}</div>
+      <h5 style="font-weight:800;margin-bottom:0.25rem;">{{ player1.name }}</h5>
+      <span class="badge-position badge-{{ player1.position }}">{{ player1.get_position_display }}</span>
+      <div style="margin-top:0.75rem;font-size:0.8rem;color:var(--text-muted);">
+        #{{ player1.jersey_number }} | {{ player1.age }} yrs | {{ player1.experience }} yrs exp
+      </div>
+      <div style="margin-top:1rem;font-size:2rem;font-weight:900;color:var(--primary);">{{ p1_raw.score }}</div>
+      <div style="font-size:0.75rem;color:var(--text-muted)">Performance Score</div>
+    </div>
+  </div>
+  <div class="col-2 text-center">
+    <div style="font-size:2rem;font-weight:900;color:var(--primary);opacity:0.6;">VS</div>
+  </div>
+  <div class="col-5">
+    <div class="glass-card" style="text-align:center;padding:1.5rem;">
+      <div class="player-avatar lg mx-auto mb-2" style="background:linear-gradient(135deg,#f59e0b,#d97706);">{{ player2.name|first|upper }}</div>
+      <h5 style="font-weight:800;margin-bottom:0.25rem;">{{ player2.name }}</h5>
+      <span class="badge-position badge-{{ player2.position }}">{{ player2.get_position_display }}</span>
+      <div style="margin-top:0.75rem;font-size:0.8rem;color:var(--text-muted);">
+        #{{ player2.jersey_number }} | {{ player2.age }} yrs | {{ player2.experience }} yrs exp
+      </div>
+      <div style="margin-top:1rem;font-size:2rem;font-weight:900;color:var(--secondary);">{{ p2_raw.score }}</div>
+      <div style="font-size:0.75rem;color:var(--text-muted)">Performance Score</div>
+    </div>
+  </div>
+</div>
+
+<!-- Radar Comparison -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="glass-card h-100">
+      <div class="card-header-custom">
+        <h6><i class="bi bi-hexagon-fill me-2" style="color:var(--primary)"></i>Performance Radar Comparison</h6>
+      </div>
+      <div class="card-body-custom">
+        <canvas id="radarCompare" height="300"></canvas>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="glass-card h-100">
+      <div class="card-header-custom">
+        <h6><i class="bi bi-bar-chart-fill me-2" style="color:var(--secondary)"></i>Side-by-Side Metrics</h6>
+      </div>
+      <div class="card-body-custom">
+        <canvas id="barCompare" height="300"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Stats Comparison Table -->
+<div class="glass-card">
+  <div class="card-header-custom">
+    <h6><i class="bi bi-table me-2" style="color:var(--info)"></i>Detailed Stats Comparison</h6>
+  </div>
+  <div class="card-body-custom">
+    {% for metric, label, unit in comparison_metrics %}
+    {% endfor %}
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Metric</th>
+          <th style="color:var(--primary)">{{ player1.name }}</th>
+          <th style="text-align:center;color:var(--text-muted);">Winner</th>
+          <th style="color:var(--secondary);text-align:right;">{{ player2.name }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% with p1=p1_raw p2=p2_raw %}
+        {% for row in comparison_rows %}
+        <tr>
+          <td style="font-weight:600;">{{ row.0 }}</td>
+          <td style="color:{% if row.1 > row.2 %}var(--success){% elif row.1 < row.2 %}var(--danger){% else %}var(--text-muted){% endif %};font-weight:{% if row.1 > row.2 %}700{% else %}400{% endif %};">
+            {{ row.1 }}{{ row.3 }}
+          </td>
+          <td style="text-align:center;font-size:1rem;">
+            {% if row.1 > row.2 %}🟢{% elif row.1 < row.2 %}🔴{% else %}➖{% endif %}
+          </td>
+          <td style="text-align:right;color:{% if row.2 > row.1 %}var(--success){% elif row.2 < row.1 %}var(--danger){% else %}var(--text-muted){% endif %};font-weight:{% if row.2 > row.1 %}700{% else %}400{% endif %};">
+            {{ row.2 }}{{ row.3 }}
+          </td>
+        </tr>
+        {% endfor %}
+        {% endwith %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% else %}
+<div style="text-align:center;padding:4rem;color:var(--text-muted);">
+  <i class="bi bi-arrows-angle-expand" style="font-size:4rem;display:block;margin-bottom:1rem;opacity:0.3;"></i>
+  <h5 style="font-weight:700;color:var(--text-primary);">Compare Two Players</h5>
+  <p>Select two players above to see a visual side-by-side comparison.</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if p1_data and p2_data %}
+<script>
+const p1 = {{ p1_data|safe }};
+const p2 = {{ p2_data|safe }};
+
+// Radar
+new Chart('radarCompare', {
+  type: 'radar',
+  data: {
+    labels: ['Attack %', 'Serve %', 'Block %', 'Points (scaled)', 'Score'],
+    datasets: [
+      {
+        label: '{{ player1.name }}',
+        data: [p1.attack, p1.serve, p1.block, Math.min(p1.points, 100), p1.score],
+        backgroundColor: 'rgba(108,99,255,0.2)',
+        borderColor: 'rgba(108,99,255,0.9)',
+        pointBackgroundColor: '#6c63ff',
+      },
+      {
+        label: '{{ player2.name }}',
+        data: [p2.attack, p2.serve, p2.block, Math.min(p2.points, 100), p2.score],
+        backgroundColor: 'rgba(245,158,11,0.2)',
+        borderColor: 'rgba(245,158,11,0.9)',
+        pointBackgroundColor: '#f59e0b',
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    scales: {
+      r: {
+        min: 0, max: 100,
+        grid: { color: 'rgba(255,255,255,0.07)' },
+        angleLines: { color: 'rgba(255,255,255,0.07)' },
+        ticks: { backdropColor: 'transparent', stepSize: 25, font: { size: 9 } },
+        pointLabels: { font: { size: 11 } }
+      }
+    },
+    plugins: { legend: { labels: { boxWidth: 12, padding: 15 } } }
+  }
+});
+
+// Bar
+new Chart('barCompare', {
+  type: 'bar',
+  data: {
+    labels: ['Attack %', 'Serve %', 'Block %', 'Score'],
+    datasets: [
+      { label: '{{ player1.name }}', data: [p1.attack, p1.serve, p1.block, p1.score], backgroundColor: 'rgba(108,99,255,0.75)', borderRadius: 6 },
+      { label: '{{ player2.name }}', data: [p2.attack, p2.serve, p2.block, p2.score], backgroundColor: 'rgba(245,158,11,0.75)', borderRadius: 6 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { labels: { boxWidth: 12, padding: 15 } } },
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,0.04)' } },
+      y: { grid: { color: 'rgba(255,255,255,0.04)' }, max: 100 }
+    }
+  }
+});
+</script>
+{% endif %}
+{% endblock %}

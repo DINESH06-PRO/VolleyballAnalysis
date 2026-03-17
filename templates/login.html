@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login — Volleyball Team Analysis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <link href="{% static 'css/custom.css' %}" rel="stylesheet" />
+</head>
+<body>
+<div class="login-page">
+  <div class="login-card fade-in-up">
+    <!-- Logo -->
+    <div class="text-center mb-4">
+      <div style="width:72px;height:72px;background:linear-gradient(135deg,#6c63ff,#f59e0b);border-radius:20px;display:flex;align-items:center;justify-content:center;font-size:2rem;margin:0 auto 1rem;">🏐</div>
+      <h2 style="font-size:1.5rem;font-weight:800;margin-bottom:0.25rem;">Welcome Back</h2>
+      <p style="font-size:0.85rem;color:var(--text-muted);">Volleyball Team Analysis System</p>
+    </div>
+
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert-custom alert-{{ message.tags|default:'info' }}" style="margin-bottom:1rem;">
+          <i class="bi bi-info-circle-fill"></i> {{ message }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    {% if form.errors %}
+      <div class="alert-custom alert-danger" style="margin-bottom:1rem;">
+        <i class="bi bi-exclamation-circle-fill"></i> Invalid username or password. Please try again.
+      </div>
+    {% endif %}
+
+    <form method="POST" action="{% url 'login' %}">
+      {% csrf_token %}
+      <div class="mb-3">
+        <label class="form-label"><i class="bi bi-person me-1"></i>Username</label>
+        {{ form.username }}
+      </div>
+      <div class="mb-4">
+        <label class="form-label"><i class="bi bi-lock me-1"></i>Password</label>
+        {{ form.password }}
+      </div>
+      <button type="submit" class="btn-primary-custom w-100" style="justify-content:center;padding:0.85rem;font-size:0.95rem;">
+        <i class="bi bi-box-arrow-in-right"></i> Sign In
+      </button>
+    </form>
+
+    <div style="margin-top:1.5rem;padding-top:1rem;border-top:1px solid var(--border);text-align:center;">
+      <p style="font-size:0.75rem;color:var(--text-muted);">
+        <i class="bi bi-shield-check me-1"></i>
+        Secure access for coaches and team managers only
+      </p>
+    </div>
+  </div>
+</div>
+</body>
+</html>

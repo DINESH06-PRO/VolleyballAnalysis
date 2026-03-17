@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% block title %}Performance Analysis — Volleyball{% endblock %}
+{% block page_title %}Performance Analysis{% endblock %}
+{% block breadcrumb %}Analytics / Team Analysis{% endblock %}
+
+{% block content %}
+<!-- Charts Row 1 -->
+<div class="row g-4 mb-4">
+  <div class="col-lg-6">
+    <div class="glass-card h-100">
+      <div class="card-header-custom">
+        <h6><i class="bi bi-lightning-charge-fill me-2" style="color:var(--primary)"></i>Attack Success Rate by Player</h6>
+      </div>
+      <div class="card-body-custom"><div class="chart-wrap" style="height:260px;"><canvas id="attackChart"></canvas></div></div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="glass-card h-100">
+      <div class="card-header-custom">
+        <h6><i class="bi bi-record-circle-fill me-2" style="color:var(--secondary)"></i>Serve Accuracy by Player</h6>
+      </div>
+      <div class="card-body-custom"><div class="chart-wrap" style="height:260px;"><canvas id="serveChart"></canvas></div></div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="glass-card h-100">
+      <div class="card-header-custom">
+        <h6><i class="bi bi-shield-fill me-2" style="color:var(--info)"></i>Block Efficiency by Player</h6>
+      </div>
+      <div class="card-body-custom"><div class="chart-wrap" style="height:260px;"><canvas id="blockChart"></canvas></div></div>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="glass-card h-100">
+      <div class="card-header-custom">
+        <h6><i class="bi bi-exclamation-triangle-fill me-2" style="color:var(--danger)"></i>Error Analysis by Player</h6>
+      </div>
+      <div class="card-body-custom"><div class="chart-wrap" style="height:260px;"><canvas id="errorChart"></canvas></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Player Rankings + Full Analysis -->
+<div class="glass-card mb-4">
+  <div class="card-header-custom">
+    <h6><i class="bi bi-bar-chart-steps me-2" style="color:var(--secondary)"></i>Player Ranking by Performance Score</h6>
+  </div>
+  <div class="card-body-custom"><div class="chart-wrap" style="height:280px;"><canvas id="rankChart"></canvas></div></div>
+</div>
+
+<!-- Detailed Table -->
+<div class="glass-card">
+  <div class="card-header-custom">
+    <h6><i class="bi bi-table me-2" style="color:var(--primary)"></i>Full Player Analysis</h6>
+  </div>
+  <div style="overflow-x:auto;">
+    <table class="custom-table" style="min-width:900px;">
+      <thead>
+        <tr>
+          <th>Rank</th><th>Player</th><th>Position</th><th>ATK%</th><th>SRV%</th><th>BLK%</th>
+          <th>Total Pts</th><th>ATK Err</th><th>REC Err</th><th>Avg Score</th><th>Strengths</th><th>Weaknesses</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for d in analysis_data %}
+        <tr>
+          <td>
+            <div class="rank-num rank-{% if forloop.counter <= 3 %}{{ forloop.counter }}{% else %}other{% endif %}">{{ forloop.counter }}</div>
+          </td>
+          <td>
+            <div style="display:flex;align-items:center;gap:0.6rem;">
+              <div class="player-avatar" style="width:32px;height:32px;font-size:0.75rem;">{{ d.player.name|first|upper }}</div>
+              <a href="{% url 'player_profile' d.player.pk %}" style="font-weight:600;color:var(--text-primary);text-decoration:none;">{{ d.player.name }}</a>
+            </div>
+          </td>
+          <td><span class="badge-position badge-{{ d.player.position }}">{{ d.player.get_position_display }}</span></td>
+          <td style="color:var(--primary);font-weight:600;">{{ d.avg_attack }}%</td>
+          <td style="color:var(--secondary);font-weight:600;">{{ d.avg_serve }}%</td>
+          <td style="color:var(--info);font-weight:600;">{{ d.avg_block }}%</td>
+          <td style="font-weight:700;">{{ d.total_points }}</td>
+          <td style="color:var(--danger);">{{ d.attack_errors }}</td>
+          <td style="color:var(--warning);">{{ d.reception_errors }}</td>
+          <td>
+            <span style="font-weight:800;color:{% if d.avg_score >= 60 %}var(--success){% elif d.avg_score >= 40 %}var(--warning){% else %}var(--danger){% endif %};">
+              {{ d.avg_score }}
+            </span>
+          </td>
+          <td>
+            {% for s in d.strengths %}<span class="sw-tag sw-strength" style="padding:0.2rem 0.5rem;font-size:0.68rem;">{{ s.label }}</span>{% endfor %}
+            {% if not d.strengths %}<span style="font-size:0.75rem;color:var(--text-muted);">None yet</span>{% endif %}
+          </td>
+          <td>
+            {% for w in d.weaknesses %}<span class="sw-tag sw-weakness" style="padding:0.2rem 0.5rem;font-size:0.68rem;">{{ w.label }}</span>{% endfor %}
+            {% if not d.weaknesses %}<span style="font-size:0.75rem;color:var(--success);">None ✓</span>{% endif %}
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="11" style="text-align:center;padding:3rem;color:var(--text-muted);">
+            <i class="bi bi-bar-chart" style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.4"></i>
+            No performance data. Record matches and add player stats to see analysis.
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const players = {{ chart_players|safe }};
+const attack  = {{ chart_attack|safe }};
+const serve   = {{ chart_serve|safe }};
+const block   = {{ chart_block|safe }};
+const scores  = {{ chart_scores|safe }};
+const errors  = {{ chart_errors|safe }};
+
+const commonOpts = (color) => ({
+  responsive: true, maintainAspectRatio: false,
+  plugins: { legend: { display: false } },
+  scales: {
+    x: { grid: { color: 'rgba(255,255,255,0.04)' } },
+    y: { grid: { color: 'rgba(255,255,255,0.04)' }, max: 100, ticks: { callback: v => v + '%' } }
+  }
+});
+
+new Chart('attackChart', {
+  type: 'bar',
+  data: { labels: players, datasets: [{ data: attack, backgroundColor: 'rgba(108,99,255,0.75)', borderRadius: 6 }] },
+  options: commonOpts('purple')
+});
+new Chart('serveChart', {
+  type: 'bar',
+  data: { labels: players, datasets: [{ data: serve, backgroundColor: 'rgba(245,158,11,0.75)', borderRadius: 6 }] },
+  options: commonOpts('amber')
+});
+new Chart('blockChart', {
+  type: 'bar',
+  data: { labels: players, datasets: [{ data: block, backgroundColor: 'rgba(59,130,246,0.75)', borderRadius: 6 }] },
+  options: commonOpts('blue')
+});
+
+// Error chart (no percentage cap)
+new Chart('errorChart', {
+  type: 'bar',
+  data: { labels: players, datasets: [{ data: errors, backgroundColor: 'rgba(239,68,68,0.75)', borderRadius: 6 }] },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: { x: { grid: { color: 'rgba(255,255,255,0.04)' } }, y: { grid: { color: 'rgba(255,255,255,0.04)' } } }
+  }
+});
+
+// Ranking horizontal bar
+new Chart('rankChart', {
+  type: 'bar',
+  data: {
+    labels: players,
+    datasets: [{
+      data: scores,
+      backgroundColor: scores.map(s => s >= 60 ? 'rgba(16,185,129,0.75)' : s >= 40 ? 'rgba(245,158,11,0.75)' : 'rgba(239,68,68,0.75)'),
+      borderRadius: 6
+    }]
+  },
+  options: {
+    indexAxis: 'y',
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,0.04)' }, max: 100 },
+      y: { grid: { color: 'rgba(255,255,255,0.04)' } }
+    }
+  }
+});
+</script>
+{% endblock %}

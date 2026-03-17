@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block title %}Add Performance Stats{% endblock %}
+{% block page_title %}{% if edit %}Edit{% else %}Add{% endif %} Player Stats{% endblock %}
+{% block breadcrumb %}<a href="{% url 'match_list' %}">Matches</a> / <a href="{% url 'match_detail' match.pk %}">vs {{ match.opponent_name }}</a> / Stats{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-9">
+    <div class="glass-card mb-3" style="background:rgba(108,99,255,0.06);border-color:rgba(108,99,255,0.2);">
+      <div class="card-body-custom" style="padding:1rem 1.5rem;">
+        <div style="display:flex;gap:1rem;align-items:center;flex-wrap:wrap;">
+          <i class="bi bi-trophy-fill" style="color:var(--secondary);font-size:1.2rem;"></i>
+          <div>
+            <div style="font-size:0.72rem;color:var(--text-muted);">Recording stats for:</div>
+            <div style="font-weight:700;">vs {{ match.opponent_name }} — {{ match.match_date }} —
+              <span class="badge-position badge-{{ match.result }}" style="font-size:0.75rem;">{{ match.get_result_display }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="glass-card">
+      <div class="card-header-custom">
+        <h6><i class="bi bi-clipboard2-data-fill me-2" style="color:var(--primary)"></i>Player Performance Statistics</h6>
+      </div>
+      <div class="card-body-custom">
+        <form method="POST">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label">Select Player *</label>
+            {{ form.player }}
+          </div>
+          <div class="row g-3">
+            <div class="col-12"><div style="font-size:0.75rem;font-weight:700;color:var(--primary);text-transform:uppercase;letter-spacing:1px;padding:0.5rem 0;border-bottom:1px solid var(--border);">⚡ Attack Statistics</div></div>
+            <div class="col-md-4">
+              <label class="form-label">Attack Attempts</label>
+              {{ form.attack_attempts }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Successful Attacks</label>
+              {{ form.successful_attacks }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Points Scored</label>
+              {{ form.points_scored }}
+            </div>
+
+            <div class="col-12"><div style="font-size:0.75rem;font-weight:700;color:var(--info);text-transform:uppercase;letter-spacing:1px;padding:0.5rem 0;border-bottom:1px solid var(--border);">🛡 Block Statistics</div></div>
+            <div class="col-md-6">
+              <label class="form-label">Blocks Attempted</label>
+              {{ form.blocks_attempted }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Successful Blocks</label>
+              {{ form.successful_blocks }}
+            </div>
+
+            <div class="col-12"><div style="font-size:0.75rem;font-weight:700;color:var(--secondary);text-transform:uppercase;letter-spacing:1px;padding:0.5rem 0;border-bottom:1px solid var(--border);">🎯 Serve Statistics</div></div>
+            <div class="col-md-4">
+              <label class="form-label">Total Serves</label>
+              {{ form.total_serves }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Successful Serves</label>
+              {{ form.successful_serves }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Service Errors</label>
+              {{ form.service_errors }}
+            </div>
+
+            <div class="col-12"><div style="font-size:0.75rem;font-weight:700;color:var(--success);text-transform:uppercase;letter-spacing:1px;padding:0.5rem 0;border-bottom:1px solid var(--border);">🤿 Defense Statistics</div></div>
+            <div class="col-md-4">
+              <label class="form-label">Reception Success</label>
+              {{ form.reception_success }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Digs</label>
+              {{ form.digs }}
+            </div>
+            <div class="col-md-4">
+              <label class="form-label">Total Errors</label>
+              {{ form.total_errors }}
+            </div>
+          </div>
+
+          <div style="margin-top:1rem;padding:1rem;background:rgba(108,99,255,0.06);border-radius:10px;font-size:0.8rem;color:var(--text-muted);">
+            <i class="bi bi-calculator me-1" style="color:var(--primary)"></i>
+            The system will automatically calculate: <strong style="color:var(--text-primary)">Attack Success Rate, Serve Accuracy, Block Efficiency,</strong> and <strong style="color:var(--text-primary)">Performance Score</strong>.
+          </div>
+
+          {% if form.errors %}
+          <div class="alert-custom alert-danger mt-3">
+            <i class="bi bi-exclamation-circle-fill"></i>
+            {% for field, errors in form.errors.items %}{% for error in errors %}{{ field }}: {{ error }} {% endfor %}{% endfor %}
+          </div>
+          {% endif %}
+
+          <div style="display:flex;gap:1rem;margin-top:1.5rem;">
+            <button type="submit" class="btn-primary-custom"><i class="bi bi-check-lg"></i> Save Performance</button>
+            <a href="{% url 'match_detail' match.pk %}" class="btn-outline-custom"><i class="bi bi-x"></i> Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

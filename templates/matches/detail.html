@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}vs {{ match.opponent_name }} — Match Detail{% endblock %}
+{% block page_title %}vs {{ match.opponent_name }}{% endblock %}
+{% block breadcrumb %}<a href="{% url 'match_list' %}">Matches</a> / Match Detail{% endblock %}
+{% block top_action %}
+<a href="{% url 'performance_add' match.pk %}" class="btn-primary-custom"><i class="bi bi-plus-lg"></i> Add Player Stats</a>
+{% endblock %}
+
+{% block content %}
+<!-- Match Info Banner -->
+<div class="glass-card mb-4">
+  <div class="card-body-custom" style="display:flex;gap:2rem;align-items:center;flex-wrap:wrap;">
+    <div>
+      <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px">Opponent</div>
+      <div style="font-size:1.4rem;font-weight:800;">{{ match.opponent_name }}</div>
+    </div>
+    <div>
+      <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px">Date</div>
+      <div style="font-size:1rem;font-weight:600;">{{ match.match_date }}</div>
+    </div>
+    <div>
+      <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px">Type</div>
+      <span class="badge-position badge-{{ match.match_type }}" style="font-size:0.85rem;padding:0.3rem 0.85rem;">{{ match.get_match_type_display }}</span>
+    </div>
+    <div>
+      <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px">Result</div>
+      <span class="badge-position badge-{{ match.result }}" style="font-size:1.1rem;font-weight:800;padding:0.4rem 1rem;">{{ match.get_result_display }}</span>
+    </div>
+    {% if match.notes %}
+    <div style="flex:1">
+      <div style="font-size:0.72rem;color:var(--text-muted);text-transform:uppercase;letter-spacing:1px">Notes</div>
+      <div style="font-size:0.85rem;">{{ match.notes }}</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Performance Table -->
+<div class="glass-card">
+  <div class="card-header-custom">
+    <h6><i class="bi bi-table me-2" style="color:var(--primary)"></i>Player Performance ({{ performances.count }} players)</h6>
+  </div>
+  <div style="overflow-x:auto;">
+    <table class="custom-table" style="min-width:900px;">
+      <thead>
+        <tr>
+          <th>Player</th><th>ATK Att.</th><th>ATK Succ.</th><th>ATK%</th>
+          <th>BLK Att.</th><th>BLK Succ.</th><th>BLK%</th>
+          <th>Serves</th><th>Srv OK</th><th>SRV%</th>
+          <th>Digs</th><th>A.Err</th><th>R.Err</th><th>Tot.E</th><th>Points</th><th>Score</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for perf in performances %}
+        <tr>
+          <td>
+            <a href="{% url 'player_profile' perf.player.pk %}" style="font-weight:700;color:var(--text-primary);text-decoration:none;">
+              #{{ perf.player.jersey_number }} {{ perf.player.name }}
+            </a>
+          </td>
+          <td>{{ perf.attack_attempts }}</td>
+          <td>{{ perf.successful_attacks }}</td>
+          <td style="color:var(--primary);font-weight:600">{{ perf.attack_success_rate }}%</td>
+          <td>{{ perf.blocks_attempted }}</td>
+          <td>{{ perf.successful_blocks }}</td>
+          <td style="color:var(--info);font-weight:600">{{ perf.block_efficiency }}%</td>
+          <td>{{ perf.total_serves }}</td>
+          <td>{{ perf.successful_serves }}</td>
+          <td style="color:var(--secondary);font-weight:600">{{ perf.serve_accuracy }}%</td>
+          <td>{{ perf.digs }}</td>
+          <td style="color:var(--danger)">{{ perf.attack_errors }}</td>
+          <td style="color:var(--warning)">{{ perf.reception_errors }}</td>
+          <td style="color:var(--text-muted);font-size:0.75rem;">{{ perf.total_errors }}</td>
+          <td style="font-weight:700">{{ perf.points_scored }}</td>
+          <td><span style="font-weight:800;color:{% if perf.performance_score >= 60 %}var(--success){% elif perf.performance_score >= 40 %}var(--warning){% else %}var(--danger){% endif %}">{{ perf.performance_score }}</span></td>
+          <td>
+            <div style="display:flex;gap:0.4rem;">
+              <a href="{% url 'performance_edit' perf.pk %}" class="btn-outline-custom" style="padding:0.25rem 0.5rem;font-size:0.72rem;"><i class="bi bi-pencil"></i></a>
+              <a href="{% url 'performance_delete' perf.pk %}" class="btn-danger-custom" style="padding:0.25rem 0.5rem;font-size:0.72rem;" onclick="return confirm('Delete this entry?')"><i class="bi bi-trash"></i></a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="15" style="text-align:center;padding:2.5rem;color:var(--text-muted);">
+            <i class="bi bi-clipboard" style="font-size:2rem;display:block;margin-bottom:0.5rem;opacity:0.4"></i>
+            No performance data yet. <a href="{% url 'performance_add' match.pk %}" style="color:var(--primary);">Add player stats</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

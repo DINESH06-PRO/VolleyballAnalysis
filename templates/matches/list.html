@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% block title %}Matches — Volleyball Analysis{% endblock %}
+{% block page_title %}Matches{% endblock %}
+{% block breadcrumb %}Team Management / Matches{% endblock %}
+{% block top_action %}
+<a href="{% url 'match_create' %}" class="btn-primary-custom"><i class="bi bi-plus-lg"></i> Record Match</a>
+{% endblock %}
+
+{% block content %}
+<div class="glass-card">
+  <div class="card-header-custom">
+    <h6><i class="bi bi-trophy-fill me-2" style="color:var(--secondary)"></i>All Matches ({{ matches.count }})</h6>
+  </div>
+  <div class="card-body-custom" style="padding:0">
+    <table class="custom-table">
+      <thead>
+        <tr><th>Opponent</th><th>Date</th><th>Type</th><th>Result</th><th>Players Logged</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        {% for m in matches %}
+        <tr>
+          <td>
+            <a href="{% url 'match_detail' m.pk %}" style="font-weight:700;color:var(--text-primary);text-decoration:none;">vs {{ m.opponent_name }}</a>
+            {% if m.notes %}<div style="font-size:0.72rem;color:var(--text-muted);margin-top:2px;">{{ m.notes|truncatechars:40 }}</div>{% endif %}
+          </td>
+          <td style="color:var(--text-muted);">{{ m.match_date }}</td>
+          <td><span class="badge-position badge-{{ m.match_type }}">{{ m.get_match_type_display }}</span></td>
+          <td><span class="badge-position badge-{{ m.result }}">{{ m.get_result_display }}</span></td>
+          <td style="color:var(--text-muted);">{{ m.performances.count }} player{% if m.performances.count != 1 %}s{% endif %}</td>
+          <td>
+            <div style="display:flex;gap:0.5rem;">
+              <a href="{% url 'match_detail' m.pk %}" class="btn-outline-custom" style="padding:0.3rem 0.6rem;font-size:0.75rem;"><i class="bi bi-eye"></i></a>
+              <a href="{% url 'match_delete' m.pk %}" class="btn-danger-custom" style="padding:0.3rem 0.6rem;font-size:0.75rem;"><i class="bi bi-trash"></i></a>
+            </div>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="6" style="text-align:center;padding:3rem;color:var(--text-muted);">
+            <i class="bi bi-trophy" style="font-size:3rem;display:block;margin-bottom:1rem;opacity:0.4"></i>
+            No matches recorded yet. <a href="{% url 'match_create' %}" style="color:var(--primary);">Record your first match</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
