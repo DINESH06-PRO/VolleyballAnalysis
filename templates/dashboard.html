@@ -165,7 +165,7 @@
 
 {% block extra_js %}
 <script>
-const chartData = {{ player_chart_data|safe }};
+const chartData = JSON.parse('{{ player_chart_data|escapejs }}');
 const labels = chartData.map(d => d.name);
 const attackData = chartData.map(d => d.attack);
 const serveData = chartData.map(d => d.serve);

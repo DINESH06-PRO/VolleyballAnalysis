@@ -46,7 +46,7 @@
         <h6><i class="bi bi-speedometer2 me-2" style="color:var(--primary)"></i>Avg Performance Score</h6>
       </div>
       <div class="card-body-custom" style="text-align:center;">
-        <div style="font-size:3.5rem;font-weight:900;color:{% if avg_score >= 60 %}var(--success){% elif avg_score >= 40 %}var(--warning){% else %}var(--danger){% endif %};">
+        <div style="font-size:3.5rem; font-weight:900; color: {% if avg_score >= 60 %}var(--success){% elif avg_score >= 40 %}var(--warning){% else %}var(--danger){% endif %};">
           {{ avg_score }}
         </div>
         <div style="font-size:0.8rem;color:var(--text-muted);margin-top:0.25rem;">out of 100</div>
@@ -252,7 +252,7 @@
 
 {% block extra_js %}
 <script>
-const rd = {{ radar_data|safe }};
+const rd = JSON.parse('{{ radar_data|escapejs }}');
 new Chart(document.getElementById('radarChart'), {
   type: 'radar',
   data: {

@@ -35,7 +35,7 @@
           <td style="color:var(--text-muted);">{{ p.matches_played }}</td>
           <td>
             {% with score=p.get_avg_performance_score %}
-            <span style="font-weight:700;color:{% if score >= 60 %}var(--success){% elif score >= 40 %}var(--warning){% else %}var(--danger){% endif %}">
+            <span style="font-weight:700; color: {% if score >= 60 %}var(--success){% elif score >= 40 %}var(--warning){% else %}var(--danger){% endif %};">
               {{ score }}
             </span>
             {% endwith %}
